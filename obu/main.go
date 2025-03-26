@@ -1,24 +1,20 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"math"
 	"math/rand"
 	"time"
 
 	"github.com/gorilla/websocket"
+	"github.com/qppffod/microservice-project/types"
 )
 
 const (
 	sendInterval = time.Second
 	wsEndpoint   = "ws://127.0.0.1:30000/ws"
 )
-
-type OBUData struct {
-	OBUID int     `json:"obuID"`
-	Lat   float64 `json:"lat"`
-	Long  float64 `json:"long"`
-}
 
 func genLatLong() (float64, float64) {
 	return genCoord(), genCoord()
@@ -32,7 +28,7 @@ func genCoord() float64 {
 }
 
 func main() {
-	obuids := generateOBUIDS(20)
+	obuids := generateOBUIDS(3)
 	conn, _, err := websocket.DefaultDialer.Dial(wsEndpoint, nil)
 	if err != nil {
 		log.Fatal(err)
@@ -40,7 +36,7 @@ func main() {
 	for {
 		for i := 0; i < len(obuids); i++ {
 			lat, long := genLatLong()
-			data := OBUData{
+			data := types.OBUData{
 				OBUID: obuids[i],
 				Lat:   lat,
 				Long:  long,
@@ -48,8 +44,9 @@ func main() {
 			if err := conn.WriteJSON(data); err != nil {
 				continue
 			}
+			fmt.Println(data)
+			time.Sleep(sendInterval)
 		}
-		time.Sleep(sendInterval)
 	}
 }
 
