@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"math"
 	"math/rand"
@@ -28,7 +27,7 @@ func genCoord() float64 {
 }
 
 func main() {
-	obuids := generateOBUIDS(3)
+	obuids := generateOBUIDS(20)
 	conn, _, err := websocket.DefaultDialer.Dial(wsEndpoint, nil)
 	if err != nil {
 		log.Fatal(err)
@@ -44,9 +43,8 @@ func main() {
 			if err := conn.WriteJSON(data); err != nil {
 				continue
 			}
-			fmt.Println(data)
-			time.Sleep(sendInterval)
 		}
+		time.Sleep(sendInterval)
 	}
 }
 
