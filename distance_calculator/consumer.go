@@ -10,11 +10,12 @@ import (
 )
 
 type KafkaConsumer struct {
-	consumer  *kafka.Consumer
-	isRunning bool
+	consumer    *kafka.Consumer
+	isRunning   bool
+	calcService CalculatorServicer
 }
 
-func NewKafkaConsumer(topic string) (*KafkaConsumer, error) {
+func NewKafkaConsumer(topic string, svc CalculatorServicer) (*KafkaConsumer, error) {
 	c, err := kafka.NewConsumer(&kafka.ConfigMap{
 		"bootstrap.servers": "localhost",
 		"group.id":          "myGroup",
@@ -30,7 +31,8 @@ func NewKafkaConsumer(topic string) (*KafkaConsumer, error) {
 	}
 
 	return &KafkaConsumer{
-		consumer: c,
+		consumer:    c,
+		calcService: svc,
 	}, nil
 }
 
@@ -47,13 +49,19 @@ func (c *KafkaConsumer) readMessageLoop() {
 			logrus.Errorf("kafka consume error: %s", err)
 			continue
 		}
+
 		var data types.OBUData
 		if err := json.Unmarshal(msg.Value, &data); err != nil {
-			logrus.Errorf("kafka consume corrupt data: %s", err)
+			logrus.Errorf("JSON serialization error: %s", err)
 			continue
 		}
-		fmt.Println("NEW_MSG->", msg)
-		fmt.Println("MSG->", data)
+
+		distance, err := c.calcService.CalculateDistance(data)
+		if err != nil {
+			logrus.Errorf("distance calculation error: %s", err)
+			continue
+		}
+		fmt.Printf("distance %.2f\n", distance)
 	}
 
 }
