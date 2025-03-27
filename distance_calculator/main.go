@@ -8,6 +8,7 @@ func main() {
 		svc CalculatorServicer
 	)
 	svc = NewCalculatorService()
+	svc = NewLogMiddleware(svc)
 	kafkaConsumer, err := NewKafkaConsumer("obudata", svc)
 	if err != nil {
 		log.Fatal(err)
