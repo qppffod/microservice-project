@@ -1,6 +1,12 @@
 package main
 
-import "log"
+import (
+	"log"
+
+	"github.com/qppffod/microservice-project/aggregator/client"
+)
+
+const aggregatorEndpoint = "http://localhost:3000/aggregate"
 
 func main() {
 	var (
@@ -9,7 +15,7 @@ func main() {
 	)
 	svc = NewCalculatorService()
 	svc = NewLogMiddleware(svc)
-	kafkaConsumer, err := NewKafkaConsumer("obudata", svc)
+	kafkaConsumer, err := NewKafkaConsumer("obudata", svc, client.NewClient(aggregatorEndpoint))
 	if err != nil {
 		log.Fatal(err)
 	}
