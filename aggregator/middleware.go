@@ -29,3 +29,19 @@ func (l *LogMiddleware) AggregateDistance(distance types.Distance) (err error) {
 
 	return err
 }
+
+func (l *LogMiddleware) CalculateInvoice(obuID int) (inv *types.Invoice, err error) {
+	defer func(start time.Time) {
+		logrus.WithFields(logrus.Fields{
+			"took":        time.Since(start),
+			"err":         err,
+			"obuID":       obuID,
+			"totalDist":   inv.TotalDistance,
+			"totalAmount": inv.TotalAmount,
+		}).Info("Calculate invoice")
+	}(time.Now())
+
+	inv, err = l.next.CalculateInvoice(obuID)
+
+	return inv, err
+}
