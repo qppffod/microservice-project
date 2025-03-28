@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/qppffod/microservice-project/types"
 )
@@ -23,7 +24,7 @@ func (s *GRPCAggregatorServer) Aggregate(ctx context.Context, req *types.Aggrega
 		Value: req.Value,
 		Unix:  req.Unix,
 	}
-	s.svc.AggregateDistance(distance)
-	return nil, nil
+	fmt.Println("NEW REUQEST: ", distance)
+	return nil, s.svc.AggregateDistance(distance)
 
 }
