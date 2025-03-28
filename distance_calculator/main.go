@@ -6,7 +6,10 @@ import (
 	"github.com/qppffod/microservice-project/aggregator/client"
 )
 
-const aggregatorEndpoint = "http://localhost:3000/aggregate"
+const (
+	aggregatorEndpoint = "http://localhost:3000/aggregate"
+	grpcEndpoint       = ":3001"
+)
 
 func main() {
 	var (
@@ -15,7 +18,14 @@ func main() {
 	)
 	svc = NewCalculatorService()
 	svc = NewLogMiddleware(svc)
-	kafkaConsumer, err := NewKafkaConsumer("obudata", svc, client.NewClient(aggregatorEndpoint))
+
+	// httpclient := client.NewHTTPClient(aggregatorEndpoint)
+	grpcClient, err := client.NewGRPCClient(grpcEndpoint)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	kafkaConsumer, err := NewKafkaConsumer("obudata", svc, grpcClient)
 	if err != nil {
 		log.Fatal(err)
 	}
