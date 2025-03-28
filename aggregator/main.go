@@ -30,7 +30,7 @@ func main() {
 
 func makeGRPCTransport(listenAddr string, svc Aggregator) error {
 	fmt.Println("GRPC transport running on port", listenAddr)
-	ln, err := net.Listen("TCP", listenAddr)
+	ln, err := net.Listen("tcp", listenAddr)
 	if err != nil {
 		return err
 	}
