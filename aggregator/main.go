@@ -77,6 +77,10 @@ func handleGetInvoice(svc Aggregator) http.HandlerFunc {
 
 func handleAggregate(svc Aggregator) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "only POST method allowed"})
+			return
+		}
 		var distance types.Distance
 		if err := json.NewDecoder(r.Body).Decode(&distance); err != nil {
 			WriteJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
