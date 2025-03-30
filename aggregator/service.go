@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/qppffod/microservice-project/types"
+	"github.com/sirupsen/logrus"
 )
 
 const basePrice = 3.15
@@ -22,6 +23,11 @@ func NewInvoiceAggregator(store Storer) Aggregator {
 }
 
 func (i *InvoiceAggregator) AggregateDistance(distance types.Distance) error {
+	logrus.WithFields(logrus.Fields{
+		"obuID":    distance.OBUID,
+		"distance": distance.Value,
+		"unix":     distance.Unix,
+	}).Info("Aggregate distance")
 	return i.store.Insert(distance)
 }
 
