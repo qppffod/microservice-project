@@ -8,12 +8,13 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/qppffod/microservice-project/types"
 	"google.golang.org/grpc"
 )
 
 func main() {
-	HTTPListenAddr := flag.String("HTTPAddr", ":3000", "listen address of the aggreagtor HTTP server")
+	HTTPListenAddr := flag.String("HTTPAddr", ":4000", "listen address of the aggreagtor HTTP server")
 	GRPCListenAddr := flag.String("GRPCAddr", ":3001", "listen address of the aggreagtor GRPC server")
 	flag.Parse()
 
@@ -22,6 +23,7 @@ func main() {
 		svc Aggregator
 	)
 	svc = NewInvoiceAggregator(store)
+	svc = NewMetricsMiddleware(svc)
 	svc = NewLogMiddleware(svc)
 
 	go makeGRPCTransport(*GRPCListenAddr, svc)
@@ -45,6 +47,7 @@ func makeHTTPTransport(listenAddr string, svc Aggregator) {
 	fmt.Println("HTTP transport running on port", listenAddr)
 	http.HandleFunc("/aggregate", handleAggregate(svc))
 	http.HandleFunc("/invoice", handleGetInvoice(svc))
+	http.Handle("/metrics", promhttp.Handler())
 	http.ListenAndServe(listenAddr, nil)
 }
 
